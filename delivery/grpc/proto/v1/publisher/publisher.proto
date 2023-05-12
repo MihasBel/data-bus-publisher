@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package v1.publisher;
+
+option go_package = "v1/publisher";
+
+import "google/protobuf/empty.proto";
+
+service PubSubService {
+  rpc Subscribe(SubscriptionRequest) returns (stream Message);
+
+  rpc Unsubscribe(SubscriptionRequest) returns (google.protobuf.Empty);
+}
+
+
+message SubscriptionRequest {
+  string subscriberId = 1;
+  string messageType = 2;
+}
+
+message Message {
+  string type = 1;
+  bytes data = 2;
+}
