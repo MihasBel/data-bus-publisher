@@ -46,7 +46,7 @@ func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 
 	pub := publisher.New()
-	b := broker.New(a.cfg.BrokerConfig, *a.log, pub)
+	b := broker.New(a.cfg.BrokerConfig, *a.log, pub, &broker.ConsCreator{})
 	manager := subscription.New(b)
 	grpcServer := grpcServ.New(a.cfg.GRPCConfig, *a.log, manager)
 

@@ -5,22 +5,21 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/MihasBel/data-bus-publisher/internal/rep"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 type Broker struct {
-	cfg       Config
-	p         rep.Publisher
-	log       *zerolog.Logger
-	consumers []*kafka.Consumer
+	cfg Config
+	p   rep.Publisher
+	cc  rep.ConsumerCreator
+	log *zerolog.Logger
 }
 
-func New(cfg Config, log zerolog.Logger, p rep.Publisher) *Broker {
+func New(cfg Config, log zerolog.Logger, p rep.Publisher, cc rep.ConsumerCreator) *Broker {
 	return &Broker{
-		cfg:       cfg,
-		log:       &log,
-		p:         p,
-		consumers: make([]*kafka.Consumer, 0),
+		cfg: cfg,
+		log: &log,
+		p:   p,
+		cc:  cc,
 	}
 }
 

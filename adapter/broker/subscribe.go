@@ -14,7 +14,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 	if !bustopic.IsInTopics(subscriber.MessageType) {
 		return errors.Errorf("Unsupported msg type: %s", subscriber.MessageType)
 	}
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
+	c, err := b.cc.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":          b.cfg.ServerURL,
 		"group.id":                   subscriber.ID,
 		"auto.offset.reset":          b.cfg.AutoOffsetReset,

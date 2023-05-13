@@ -3,8 +3,8 @@ package subscription
 import (
 	"context"
 	"fmt"
-	"github.com/MihasBel/data-bus-publisher/adapter/broker"
 	"github.com/MihasBel/data-bus-publisher/internal/models"
+	"github.com/MihasBel/data-bus-publisher/internal/rep"
 	"sync"
 )
 
@@ -14,11 +14,11 @@ const (
 
 type Service struct {
 	subMap map[string]*models.Subscriber
-	b      *broker.Broker
+	b      rep.Broker
 	mu     sync.Mutex
 }
 
-func New(b *broker.Broker) *Service {
+func New(b rep.Broker) *Service {
 	return &Service{
 		b:      b,
 		subMap: make(map[string]*models.Subscriber),
