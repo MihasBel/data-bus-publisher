@@ -3,9 +3,10 @@ package subscription
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"github.com/MihasBel/data-bus-publisher/internal/models"
 	"github.com/MihasBel/data-bus-publisher/internal/rep"
-	"sync"
 )
 
 const (

@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+
 	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
 	"github.com/pkg/errors"
 )

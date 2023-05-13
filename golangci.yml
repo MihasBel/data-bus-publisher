@@ -39,7 +39,6 @@ linters-settings:
     # A comma-separated list of prefixes, which, if set, checks import paths
     # with the given prefixes are grouped after 3rd-party packages.
     # Default: ""
-    local-prefixes: github.com/MihasBel
   # Checks if package imports are in a list of acceptable packages
   depguard:
     list-type: blacklist
@@ -99,7 +98,7 @@ linters-settings:
     sections:
       - standard # Standard section: captures all standard packages.
       - default # Default section: contains all imports that could not be matched to another section type.
-      - prefix(github.com/MihasBel) # Custom section: groups all imports with the specified Prefix.
+       # Custom section: groups all imports with the specified Prefix.
 #      - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
 #      - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
     # Skip generated files.

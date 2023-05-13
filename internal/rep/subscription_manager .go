@@ -2,6 +2,7 @@ package rep
 
 import (
 	"context"
+
 	"github.com/MihasBel/data-bus-publisher/internal/models"
 )
 

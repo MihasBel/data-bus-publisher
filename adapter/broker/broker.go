@@ -2,9 +2,9 @@ package broker
 
 import (
 	"context"
-	"github.com/rs/zerolog"
 
 	"github.com/MihasBel/data-bus-publisher/internal/rep"
+	"github.com/rs/zerolog"
 )
 
 type Broker struct {

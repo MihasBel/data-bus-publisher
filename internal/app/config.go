@@ -1,9 +1,10 @@
 package app
 
 import (
+	"time"
+
 	"github.com/MihasBel/data-bus-publisher/adapter/broker"
 	"github.com/MihasBel/data-bus-publisher/delivery/grpc/pubserver"
-	"time"
 )
 
 type Config struct {

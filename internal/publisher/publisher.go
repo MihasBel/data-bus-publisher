@@ -2,6 +2,7 @@ package publisher
 
 import (
 	"context"
+
 	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
 	"github.com/MihasBel/data-bus-publisher/internal/models"
 	"github.com/MihasBel/data-bus/broker/model"

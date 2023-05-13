@@ -2,13 +2,13 @@ package app
 
 import (
 	"context"
-	"github.com/rs/zerolog"
 	"testing"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 func TestApp_Start(t *testing.T) {
-
 	app := New(Config{StartTimeout: 1 * time.Second}, zerolog.Nop())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)

@@ -3,6 +3,9 @@ package pubserver
 import (
 	"context"
 	"encoding/json"
+	"net"
+	"time"
+
 	v1publisher "github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
 	"github.com/MihasBel/data-bus-publisher/delivery/grpc/pubserver/publisher"
 	"github.com/MihasBel/data-bus-publisher/internal/rep"
@@ -13,8 +16,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	"net"
-	"time"
 )
 
 // MSGs
@@ -51,6 +52,7 @@ func New(
 	l zerolog.Logger,
 	m rep.SubscriptionManager,
 ) *Server {
+
 	return &Server{
 		cfg: cfg,
 		m:   m,
@@ -108,7 +110,12 @@ func (s *Server) Stop(_ context.Context) error {
 }
 
 // ZerologInterceptor logger
-func (s *Server) ZerologInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func (s *Server) ZerologInterceptor(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
 	start := time.Now()
 	resp, err := handler(ctx, req)
 	body, _ := json.Marshal(resp)

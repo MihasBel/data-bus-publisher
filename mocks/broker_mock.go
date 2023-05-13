@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"context"
+
 	"github.com/MihasBel/data-bus-publisher/internal/models"
 	"github.com/stretchr/testify/mock"
 )

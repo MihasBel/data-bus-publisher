@@ -4,12 +4,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/MihasBel/data-bus-publisher/internal/app"
+	executor "github.com/MihasBel/data-bus-publisher/pkg/app"
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
-
-	"github.com/MihasBel/data-bus-publisher/internal/app"
-	executor "github.com/MihasBel/data-bus-publisher/pkg/app"
 )
 
 const (

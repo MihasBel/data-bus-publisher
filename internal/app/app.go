@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"time"
+
 	"github.com/MihasBel/data-bus-publisher/adapter/broker"
 	grpcServ "github.com/MihasBel/data-bus-publisher/delivery/grpc/pubserver"
 	"github.com/MihasBel/data-bus-publisher/internal/publisher"
@@ -9,7 +11,6 @@ import (
 	"github.com/MihasBel/data-bus-publisher/pkg/lifecycle"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"time"
 )
 
 const (

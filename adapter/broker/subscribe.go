@@ -3,6 +3,7 @@ package broker
 import (
 	"context"
 	"fmt"
+
 	"github.com/MihasBel/data-bus-publisher/internal/models"
 	"github.com/MihasBel/data-bus/broker/bustopic"
 	"github.com/MihasBel/data-bus/broker/model"
@@ -31,51 +32,60 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 		return fmt.Errorf("failed to subscribe to topic: %w", err)
 	}
 
-	go func(sub *models.Subscriber) {
-		defer func(c *kafka.Consumer) {
-			err := c.Close()
-			if err != nil {
-				b.log.Error().Err(err)
+	go b.consume(ctx, subscriber, c)
+
+	return nil
+}
+
+func (b *Broker) consume(ctx context.Context, sub *models.Subscriber, c *kafka.Consumer) {
+	defer func(c *kafka.Consumer) {
+		err := c.Close()
+		if err != nil {
+			b.log.Error().Err(err)
+		}
+	}(c)
+	for {
+		var err error
+		select {
+		case <-ctx.Done():
+			b.log.Info().Msgf("cancel ctx in HandleConsumer go func id:%s", sub.ID)
+			return
+		default:
+			ev := c.Poll(b.cfg.GroupTimeoutMs)
+			if ev == nil {
+				continue
 			}
-		}(c)
-		for {
-			select {
-			case <-ctx.Done():
-				b.log.Info().Msgf("cancel ctx in HandleConsumer go func id:%s", sub.ID)
-				return
-			default:
-				ev := c.Poll(b.cfg.GroupTimeoutMs)
-				if ev == nil {
+
+			switch msg := ev.(type) {
+			case *kafka.Message:
+				if err := sub.IsValid(); err != nil {
+					b.log.Error().Err(err).Msgf("Get subscriber ID:%v", sub.ID)
 					continue
 				}
 
-				switch msg := ev.(type) {
-				case *kafka.Message:
-					if err := sub.IsValid(); err != nil {
-						b.log.Error().Err(err).Msgf("Get subscriber ID:%v", subscriber.ID)
-						continue
-					}
-
-					err = b.p.Publish(ctx, sub, &model.Message{
-						MsgType: subscriber.MessageType,
-						Data:    msg.Value,
-					})
-					if err != nil {
-						b.log.Error().Err(err).Msgf("Publish to subscriber ID:%v", subscriber.ID)
-						continue
-					}
-					_, err = c.StoreOffsets([]kafka.TopicPartition{{Topic: msg.TopicPartition.Topic, Partition: msg.TopicPartition.Partition, Offset: msg.TopicPartition.Offset + 1}})
-					if err != nil {
-						b.log.Error().Err(err).Msgf("StoreOffsets subscriber ID:%v", subscriber.ID)
-						continue
-					}
-				case kafka.Error:
-					b.log.Error().Msgf("kafka.Error in subscriber ID:%v error:%s", subscriber.ID, msg.Error())
-				default:
+				err = b.p.Publish(ctx, sub, &model.Message{
+					MsgType: sub.MessageType,
+					Data:    msg.Value,
+				})
+				if err != nil {
+					b.log.Error().Err(err).Msgf("Publish to subscriber ID:%v", sub.ID)
+					continue
 				}
+				_, err = c.StoreOffsets(
+					[]kafka.TopicPartition{
+						{Topic: msg.TopicPartition.Topic,
+							Partition: msg.TopicPartition.Partition,
+							Offset:    msg.TopicPartition.Offset + 1},
+					})
+
+				if err != nil {
+					b.log.Error().Err(err).Msgf("StoreOffsets subscriber ID:%v", sub.ID)
+					continue
+				}
+			case kafka.Error:
+				b.log.Error().Msgf("kafka.Error in subscriber ID:%v error:%s", sub.ID, msg.Error())
+			default:
 			}
 		}
-	}(subscriber)
-
-	return nil
+	}
 }

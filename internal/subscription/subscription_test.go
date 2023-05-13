@@ -2,11 +2,12 @@ package subscription
 
 import (
 	"context"
-	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
-	"github.com/MihasBel/data-bus-publisher/mocks"
 	"testing"
 
+	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
 	"github.com/MihasBel/data-bus-publisher/internal/models"
+	"github.com/MihasBel/data-bus-publisher/mocks"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -64,10 +65,7 @@ func TestService_Subscribe(t *testing.T) {
 			service := New(&broker)
 
 			err := service.Subscribe(context.Background(), tt.subscriber)
-			if err == nil {
-
-			}
-			if err != tt.wantErr {
+			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("Service.Subscribe() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
