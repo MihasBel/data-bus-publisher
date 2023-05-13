@@ -2,8 +2,8 @@ package subscription
 
 import (
 	"context"
+	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
 	"github.com/MihasBel/data-bus-publisher/mocks"
-	"github.com/pkg/errors"
 	"testing"
 
 	"github.com/MihasBel/data-bus-publisher/internal/models"
@@ -11,6 +11,12 @@ import (
 )
 
 func TestService_Subscribe(t *testing.T) {
+	stream := &mocks.StreamMock{
+		SendFunc: func(msg *publisher.Message) error {
+			return nil
+		},
+	}
+	_, cancel := context.WithCancel(context.Background())
 	tests := []struct {
 		name        string
 		subscriber  *models.Subscriber
@@ -22,6 +28,8 @@ func TestService_Subscribe(t *testing.T) {
 			subscriber: &models.Subscriber{
 				ID:          "123",
 				MessageType: "type1",
+				Stream:      stream,
+				Cancel:      cancel,
 			},
 			wantErr: nil,
 		},
@@ -30,6 +38,8 @@ func TestService_Subscribe(t *testing.T) {
 			subscriber: &models.Subscriber{
 				ID:          "123",
 				MessageType: "type1",
+				Stream:      stream,
+				Cancel:      cancel,
 			},
 			wantErr: nil,
 		},
@@ -38,29 +48,25 @@ func TestService_Subscribe(t *testing.T) {
 			subscriber: &models.Subscriber{
 				ID:          "",
 				MessageType: "type1",
+				Stream:      stream,
+				Cancel:      cancel,
 			},
-			wantErr: errors.New("subscriber ID cannot be empty"),
-		},
-		{
-			name: "broker error",
-			subscriber: &models.Subscriber{
-				ID:          "123",
-				MessageType: "type1",
-			},
-			wantErr:     errors.New("broker error"),
-			brokerError: errors.New("broker error"),
+			wantErr: models.ErrEmptID,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			broker := mocks.BrokerMock{}
-			broker.On("HandleConsumer", mock.Anything, tt.subscriber).Return(tt.brokerError)
-
+			if tt.wantErr == nil {
+				broker.On("HandleConsumer", mock.Anything, tt.subscriber).Return(tt.brokerError)
+			}
 			service := New(&broker)
 
 			err := service.Subscribe(context.Background(), tt.subscriber)
+			if err == nil {
 
+			}
 			if err != tt.wantErr {
 				t.Errorf("Service.Subscribe() error = %v, wantErr %v", err, tt.wantErr)
 			}

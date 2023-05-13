@@ -7,5 +7,5 @@ import (
 
 type SubscriptionManager interface {
 	Subscribe(ctx context.Context, subscriber *models.Subscriber) error
-	Unsubscribe(ctx context.Context, id string) error
+	Unsubscribe(ctx context.Context, id string, msgType string) error
 }

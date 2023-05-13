@@ -43,13 +43,14 @@ func (s *Service) Subscribe(ctx context.Context, subscriber *models.Subscriber) 
 	return s.b.HandleConsumer(ctx, subscriber)
 }
 
-func (s *Service) Unsubscribe(_ context.Context, subscriberID string) error {
+func (s *Service) Unsubscribe(_ context.Context, subscriberID string, msgType string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	v, ok := s.subMap[subscriberID]
+	key := fmt.Sprintf(subkeyf, subscriberID, msgType)
+	v, ok := s.subMap[key]
 	if ok {
 		v.Cancel()
-		delete(s.subMap, subscriberID)
+		delete(s.subMap, key)
 		return nil
 	}
 	return nil

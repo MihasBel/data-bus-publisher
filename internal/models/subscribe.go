@@ -6,6 +6,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	ErrEmptID = errors.New("subscriber ID cannot be empty")
+)
+
 type Subscriber struct {
 	ID          string
 	Stream      publisher.PubSubService_SubscribeServer
@@ -15,7 +19,7 @@ type Subscriber struct {
 
 func (s *Subscriber) IsValid() error {
 	if s.ID == "" {
-		return errors.New("subscriber ID cannot be empty")
+		return ErrEmptID
 	}
 	if s.Stream == nil {
 		return errors.New("stream cannot be nil")

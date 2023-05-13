@@ -22,7 +22,8 @@ var testMessage = &model.Message{
 
 func TestService_Publish(t *testing.T) {
 	s := New()
-
+	_, cancel := context.WithCancel(context.Background())
+	testSubscriber.Cancel = cancel
 	streamSendCalled := false
 	testSubscriber.Stream = &mocks.StreamMock{
 		SendFunc: func(msg *publisher.Message) error {
