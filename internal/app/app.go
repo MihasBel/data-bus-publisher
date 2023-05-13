@@ -49,8 +49,6 @@ func (a *App) Start(ctx context.Context) error {
 
 	a.cmps = append(
 		a.cmps,
-		cmp{manager, "subManager"},
-		cmp{b, "broker"},
 		cmp{grpcServer, "grpcServer"},
 	)
 

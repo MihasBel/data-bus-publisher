@@ -41,6 +41,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 		for {
 			select {
 			case <-ctx.Done():
+				b.log.Info().Msgf("cancel ctx in HandleConsumer go func id:%s", subscriber.ID)
 				return
 			case <-subscriber.Unsubscribe:
 				return
@@ -53,6 +54,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 				switch msg := ev.(type) {
 				case *kafka.Message:
 					sub, err := b.m.Get(subscriber.ID)
+					b.log.Info().Msgf("got subscriber id:%s", sub.ID)
 					if err != nil {
 						b.log.Error().Err(err).Msgf("Get subscriber ID:%v", subscriber.ID)
 						continue
@@ -72,7 +74,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 						continue
 					}
 				case kafka.Error:
-					b.log.Error().Err(err).Msgf("kafka.Error subscriber ID:%v", subscriber.ID)
+					b.log.Error().Msgf("kafka.Error in subscriber ID:%v error:%s", subscriber.ID, msg.Error())
 				default:
 				}
 			}

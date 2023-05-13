@@ -3,6 +3,8 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/MihasBel/data-bus v0.0.1 h1:g4ZrgrV9LzgRPpLZwx8rzZpZO16m1nr2uoR3D9/RdJs=
 github.com/MihasBel/data-bus v0.0.1/go.mod h1:aG1uS5Jsz49wHOAKVjBAuARmuMn7yvA+eiRlixCE3GU=
+github.com/MihasBel/data-bus v0.0.2 h1:e+c7zxJVNVJGA+j/6CPLWQfjwzvfsG6q+KaU/FQQADc=
+github.com/MihasBel/data-bus v0.0.2/go.mod h1:aG1uS5Jsz49wHOAKVjBAuARmuMn7yvA+eiRlixCE3GU=
 github.com/actgardner/gogen-avro/v10 v10.1.0/go.mod h1:o+ybmVjEa27AAr35FRqU98DJu1fXES56uXniYFv4yDA=
 github.com/actgardner/gogen-avro/v10 v10.2.1/go.mod h1:QUhjeHPchheYmMDni/Nx7VB0RsT/ee8YIgGY/xpEQgQ=
 github.com/actgardner/gogen-avro/v9 v9.1.0/go.mod h1:nyTj6wPqDJoxM3qdnjcLv+EnMDSDFqE0qDpva2QRmKc=

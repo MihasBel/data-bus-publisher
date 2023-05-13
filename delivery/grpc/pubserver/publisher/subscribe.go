@@ -1,7 +1,6 @@
 package publisher
 
 import (
-	"context"
 	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
 	"github.com/MihasBel/data-bus-publisher/internal/models"
 )
@@ -11,13 +10,15 @@ func (s *Server) Subscribe(request *publisher.SubscriptionRequest, stream publis
 		ID:          request.SubscriberId,
 		Stream:      stream,
 		MessageType: request.MessageType,
-		Unsubscribe: make(chan struct{}, 1),
+		Unsubscribe: make(chan struct{}),
 	}
 	if err := s.m.Subscribe(subscriber); err != nil {
 		return err
 	}
-	if err := s.b.HandleConsumer(context.Background(), subscriber); err != nil {
+	if err := s.b.HandleConsumer(stream.Context(), subscriber); err != nil {
 		return err
 	}
-	return nil
+	<-stream.Context().Done()
+
+	return stream.Context().Err()
 }
