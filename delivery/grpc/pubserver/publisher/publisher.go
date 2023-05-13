@@ -9,13 +9,11 @@ import (
 type Server struct {
 	publisher.UnimplementedPubSubServiceServer
 	m rep.SubscriptionManager
-	b rep.Broker
 }
 
 // New constructor
-func New(m rep.SubscriptionManager, b rep.Broker) *Server {
+func New(m rep.SubscriptionManager) *Server {
 	return &Server{
 		m: m,
-		b: b,
 	}
 }

@@ -31,7 +31,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 		return fmt.Errorf("failed to subscribe to topic: %w", err)
 	}
 
-	go func() {
+	go func(sub *models.Subscriber) {
 		defer func(c *kafka.Consumer) {
 			err := c.Close()
 			if err != nil {
@@ -41,9 +41,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 		for {
 			select {
 			case <-ctx.Done():
-				b.log.Info().Msgf("cancel ctx in HandleConsumer go func id:%s", subscriber.ID)
-				return
-			case <-subscriber.Unsubscribe:
+				b.log.Info().Msgf("cancel ctx in HandleConsumer go func id:%s", sub.ID)
 				return
 			default:
 				ev := c.Poll(b.cfg.GroupTimeoutMs)
@@ -53,9 +51,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 
 				switch msg := ev.(type) {
 				case *kafka.Message:
-					sub, err := b.m.Get(subscriber.ID)
-					b.log.Info().Msgf("got subscriber id:%s", sub.ID)
-					if err != nil {
+					if err := sub.IsValid(); err != nil {
 						b.log.Error().Err(err).Msgf("Get subscriber ID:%v", subscriber.ID)
 						continue
 					}
@@ -65,7 +61,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 						Data:    msg.Value,
 					})
 					if err != nil {
-						b.log.Error().Err(err).Msgf("Publish subscriber ID:%v", subscriber.ID)
+						b.log.Error().Err(err).Msgf("Publish to subscriber ID:%v", subscriber.ID)
 						continue
 					}
 					_, err = c.StoreOffsets([]kafka.TopicPartition{{Topic: msg.TopicPartition.Topic, Partition: msg.TopicPartition.Partition, Offset: msg.TopicPartition.Offset + 1}})
@@ -79,7 +75,7 @@ func (b *Broker) HandleConsumer(ctx context.Context, subscriber *models.Subscrib
 				}
 			}
 		}
-	}()
+	}(subscriber)
 
 	return nil
 }

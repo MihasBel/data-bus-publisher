@@ -10,17 +10,15 @@ import (
 
 type Broker struct {
 	cfg       Config
-	m         rep.SubscriptionManager
 	p         rep.Publisher
 	log       *zerolog.Logger
 	consumers []*kafka.Consumer
 }
 
-func New(cfg Config, log zerolog.Logger, m rep.SubscriptionManager, p rep.Publisher) *Broker {
+func New(cfg Config, log zerolog.Logger, p rep.Publisher) *Broker {
 	return &Broker{
 		cfg:       cfg,
 		log:       &log,
-		m:         m,
 		p:         p,
 		consumers: make([]*kafka.Consumer, 0),
 	}

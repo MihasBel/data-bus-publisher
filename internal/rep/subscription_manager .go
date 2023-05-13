@@ -6,7 +6,6 @@ import (
 )
 
 type SubscriptionManager interface {
-	Subscribe(subscriber *models.Subscriber) error
+	Subscribe(ctx context.Context, subscriber *models.Subscriber) error
 	Unsubscribe(ctx context.Context, id string) error
-	Get(subscriberID string) (*models.Subscriber, error)
 }

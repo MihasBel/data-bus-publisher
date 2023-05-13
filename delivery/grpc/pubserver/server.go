@@ -41,7 +41,6 @@ type Server struct {
 	cfg Config
 	srv *grpc.Server
 	m   rep.SubscriptionManager
-	b   rep.Broker
 	l   zerolog.Logger
 }
 
@@ -51,12 +50,10 @@ func New(
 
 	l zerolog.Logger,
 	m rep.SubscriptionManager,
-	b rep.Broker,
 ) *Server {
 	return &Server{
 		cfg: cfg,
 		m:   m,
-		b:   b,
 		l:   l,
 	}
 }
@@ -74,7 +71,7 @@ func (s *Server) Start(_ context.Context) error {
 			recovery.UnaryServerInterceptor(),
 		)),
 	)
-	v1publisher.RegisterPubSubServiceServer(s.srv, publisher.New(s.m, s.b))
+	v1publisher.RegisterPubSubServiceServer(s.srv, publisher.New(s.m))
 
 	reflection.Register(s.srv)
 

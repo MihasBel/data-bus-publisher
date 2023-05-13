@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
 	"github.com/pkg/errors"
 )
@@ -9,7 +10,7 @@ type Subscriber struct {
 	ID          string
 	Stream      publisher.PubSubService_SubscribeServer
 	MessageType string
-	Unsubscribe chan struct{}
+	Cancel      context.CancelFunc
 }
 
 func (s *Subscriber) IsValid() error {
@@ -22,8 +23,8 @@ func (s *Subscriber) IsValid() error {
 	if s.MessageType == "" {
 		return errors.New("message type cannot be empty")
 	}
-	if s.Unsubscribe == nil {
-		return errors.New("Unsubscribe ch cannot be nil")
+	if s.Cancel == nil {
+		return errors.New("CancelFunc ch cannot be nil")
 	}
 	return nil
 }

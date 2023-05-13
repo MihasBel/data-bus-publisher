@@ -3,38 +3,44 @@ package subscription
 import (
 	"context"
 	"fmt"
-	"github.com/MihasBel/data-bus-publisher/delivery/grpc/gen/v1/publisher"
+	"github.com/MihasBel/data-bus-publisher/adapter/broker"
 	"github.com/MihasBel/data-bus-publisher/internal/models"
-	"github.com/MihasBel/data-bus/broker/model"
-	"github.com/pkg/errors"
 	"sync"
+)
+
+const (
+	subkeyf = "id_%s_type_%s"
 )
 
 type Service struct {
 	subMap map[string]*models.Subscriber
+	b      *broker.Broker
 	mu     sync.Mutex
 }
 
-func New() *Service {
+func New(b *broker.Broker) *Service {
 	return &Service{
+		b:      b,
 		subMap: make(map[string]*models.Subscriber),
 	}
 }
 
-func (s *Service) Subscribe(subscriber *models.Subscriber) error {
+func (s *Service) Subscribe(ctx context.Context, subscriber *models.Subscriber) error {
 	err := subscriber.IsValid()
 	if err != nil {
 		return err
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	v, ok := s.subMap[subscriber.ID]
+	key := fmt.Sprintf(subkeyf, subscriber.ID, subscriber.MessageType)
+	v, ok := s.subMap[key]
 	if ok {
+		v.Cancel()
 		v.Stream = subscriber.Stream
-		return nil
+	} else {
+		s.subMap[key] = subscriber
 	}
-	s.subMap[subscriber.ID] = subscriber
-	return nil
+	return s.b.HandleConsumer(ctx, subscriber)
 }
 
 func (s *Service) Unsubscribe(_ context.Context, subscriberID string) error {
@@ -42,35 +48,10 @@ func (s *Service) Unsubscribe(_ context.Context, subscriberID string) error {
 	defer s.mu.Unlock()
 	v, ok := s.subMap[subscriberID]
 	if ok {
-		v.Unsubscribe <- struct{}{}
+		v.Cancel()
 		delete(s.subMap, subscriberID)
 		return nil
 	}
-	return nil
-}
-
-func (s *Service) Get(subscriberID string) (*models.Subscriber, error) {
-	sub, ok := s.subMap[subscriberID]
-	if !ok {
-		return nil, fmt.Errorf("subscriber with ID %s not found", subscriberID)
-	}
-	return sub, nil
-}
-
-func (s *Service) Publish(_ context.Context, subscriber *models.Subscriber, msg *model.Message) error {
-	err := subscriber.IsValid()
-	if err != nil {
-		return err
-	}
-	grpcMsg := &publisher.Message{
-		Type: msg.MsgType,
-		Data: msg.Data,
-	}
-
-	if err := subscriber.Stream.Send(grpcMsg); err != nil {
-		return errors.Wrapf(err, "failed to send message to subscriber %s", subscriber.ID)
-	}
-
 	return nil
 }
 

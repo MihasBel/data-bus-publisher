@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/MihasBel/data-bus-publisher/adapter/broker"
 	grpcServ "github.com/MihasBel/data-bus-publisher/delivery/grpc/pubserver"
+	"github.com/MihasBel/data-bus-publisher/internal/publisher"
 	"github.com/MihasBel/data-bus-publisher/internal/subscription"
 	"github.com/MihasBel/data-bus-publisher/pkg/lifecycle"
 	"github.com/pkg/errors"
@@ -43,9 +44,11 @@ func New(cfg Config, l zerolog.Logger) *App {
 
 func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
-	manager := subscription.New()
-	b := broker.New(a.cfg.BrokerConfig, *a.log, manager, manager)
-	grpcServer := grpcServ.New(a.cfg.GRPCConfig, *a.log, manager, b)
+
+	pub := publisher.New()
+	b := broker.New(a.cfg.BrokerConfig, *a.log, pub)
+	manager := subscription.New(b)
+	grpcServer := grpcServ.New(a.cfg.GRPCConfig, *a.log, manager)
 
 	a.cmps = append(
 		a.cmps,
